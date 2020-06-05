@@ -10,9 +10,19 @@ import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.IBinder;
 import android.support.v4.media.session.MediaSessionCompat;
+import android.graphics.Bitmap;
+import android.widget.Toast;
+import java.io.InputStream;
+import java.net.URL;
+import java.io.IOException;
+import android.graphics.Color;
+import java.net.HttpURLConnection;
+import android.content.res.AssetFileDescriptor;
+import java.io.File;
 
 import androidx.core.app.NotificationCompat;
 import androidx.media.session.MediaButtonReceiver;
+import android.content.res.AssetManager;
 
 
 public class NotificationPanel extends Service {
@@ -20,9 +30,16 @@ public class NotificationPanel extends Service {
     public  static final String CHANNEL_ID = "flutter_media_notification";
     public  static final String MEDIA_SESSION_TAG = "flutter_media_notification";
 
+
+
     @Override
     public void onCreate() {
         super.onCreate();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
     }
 
     @Override
@@ -30,6 +47,7 @@ public class NotificationPanel extends Service {
         boolean isPlaying = intent.getBooleanExtra("isPlaying", true);
         String title = intent.getStringExtra("title");
         String author = intent.getStringExtra("author");
+        String imageUrl = intent.getStringExtra("imageUrl");
 
         createNotificationChannel();
 
@@ -48,7 +66,8 @@ public class NotificationPanel extends Service {
                 .setAction("toggle")
                 .putExtra("title",  title)
                 .putExtra("author",  author)
-                .putExtra("play", !isPlaying);
+                .putExtra("play", !isPlaying)
+                .putExtra("imageUrl", imageUrl);
         PendingIntent pendingToggleIntent = PendingIntent.getBroadcast(this, 0, toggleIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         MediaButtonReceiver.handleIntent(mediaSession, toggleIntent);
 
@@ -67,8 +86,10 @@ public class NotificationPanel extends Service {
                 .setAction("select");
         PendingIntent selectPendingIntent = PendingIntent.getBroadcast(this, 0, selectIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 //        MediaButtonReceiver.handleIntent(mediaSession, selectIntent);
-
-        Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
+        
+            //File imgFile = new  File("/storage/emulated/0/Android/data/hu.encosoft.radio/files/" + imageUrl);
+            //Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+            Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .addAction(R.drawable.baseline_skip_previous_black_48, "prev", pendingPrevIntent)
                 .addAction(iconPlayPause, titlePlayPause, pendingToggleIntent)
                 .addAction(R.drawable.baseline_skip_next_black_48, "next", pendingNextIntent)
@@ -76,29 +97,41 @@ public class NotificationPanel extends Service {
                         .setShowActionsInCompactView(0, 1,2)
                         .setShowCancelButton(true)
                         .setMediaSession(mediaSession.getSessionToken()))
-                .setSmallIcon(R.drawable.ic_stat_music_note)
+                .setSmallIcon(R.drawable.manna_icon_small)
+                //.setSmallIcon(imgFile)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setVibrate(new long[]{0L})
-                .setPriority(NotificationCompat.PRIORITY_MAX)
+                .setPriority(NotificationCompat.PRIORITY_MIN)
                 .setContentTitle(title)
                 .setContentText(author)
                 .setSubText(title)
                 .setContentIntent(selectPendingIntent)
-                .setLargeIcon(BitmapFactory.decodeResource(this.getResources(), R.drawable.ic_stat_music_note))
+                //.setLargeIcon(myBitmap)
+                .setLargeIcon(BitmapFactory.decodeResource(this.getResources(), R.drawable.manna_icon_small))
+                //.setLargeIcon(BitmapFactory.decodeResource(this.getResources(), fd))
+                .setColor(Color.parseColor("#1D1E42"))
                 .build();
 
-        startForeground(NOTIFICATION_ID, notification);
-        if(!isPlaying) {
-            stopForeground(false);
-        }
-
-        return START_NOT_STICKY;
+            startForeground(NOTIFICATION_ID, notification);
+            if(!isPlaying) {
+                stopForeground(false);
+            }
+            return START_NOT_STICKY;
     }
 
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
+    public static Bitmap getBitmapFromUrl(String src) {
+        try {
+            URL url = new URL(src);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setDoInput(true);
+            connection.connect();
+            InputStream input = connection.getInputStream();
+            Bitmap myBitmap = BitmapFactory.decodeStream(input);
+            return myBitmap;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     @Override
@@ -125,6 +158,8 @@ public class NotificationPanel extends Service {
 
     @Override
     public void onTaskRemoved(Intent rootIntent) {
+        stopSelf();
+        android.os.Process.killProcess(android.os.Process.myPid());
         stopForeground(true);
     }
 }

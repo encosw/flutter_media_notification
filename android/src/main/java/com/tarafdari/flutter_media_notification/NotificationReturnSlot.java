@@ -20,13 +20,14 @@ public class NotificationReturnSlot extends BroadcastReceiver {
                 String title = intent.getStringExtra("title");
                 String author = intent.getStringExtra("author");
                 boolean play = intent.getBooleanExtra("play",true);
+                String imageUrl = intent.getStringExtra("imageUrl");
 
                 if(play)
                     FlutterMediaNotificationPlugin.callEvent("play");
                 else
                     FlutterMediaNotificationPlugin.callEvent("pause");
 
-                FlutterMediaNotificationPlugin.showNotification(title, author,play);
+                FlutterMediaNotificationPlugin.showNotification(title, author,play, imageUrl);
                 break;
             case "select":
                 Intent closeDialog = new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
