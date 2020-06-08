@@ -1,6 +1,5 @@
 package com.tarafdari.flutter_media_notification;
 
-
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
@@ -57,14 +56,17 @@ public class FlutterMediaNotificationPlugin implements MethodCallHandler {
       }
 
       @Override
-      public void error(String s, String s1, Object o) {}
+      public void error(String s, String s1, Object o) {
+      }
 
       @Override
-      public void notImplemented() {}
+      public void notImplemented() {
+      }
     });
   }
 
-  static void showNotification(String title, String author, boolean play, String imageUrl, boolean hasNext, boolean hasPrev) {
+  static void showNotification(String title, String author, boolean play, String imageUrl, boolean hasNext,
+      boolean hasPrev) {
 
     Intent serviceIntent = new Intent(registrar.context(), NotificationPanel.class);
     serviceIntent.putExtra("title", title);
