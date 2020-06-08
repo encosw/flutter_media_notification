@@ -24,13 +24,10 @@ import androidx.core.app.NotificationCompat;
 import androidx.media.session.MediaButtonReceiver;
 import android.content.res.AssetManager;
 
-
 public class NotificationPanel extends Service {
     public static int NOTIFICATION_ID = 1;
-    public  static final String CHANNEL_ID = "flutter_media_notification";
-    public  static final String MEDIA_SESSION_TAG = "flutter_media_notification";
-
-
+    public static final String CHANNEL_ID = "flutter_media_notification";
+    public static final String MEDIA_SESSION_TAG = "flutter_media_notification";
 
     @Override
     public void onCreate() {
@@ -48,75 +45,78 @@ public class NotificationPanel extends Service {
         String title = intent.getStringExtra("title");
         String author = intent.getStringExtra("author");
         String imageUrl = intent.getStringExtra("imageUrl");
+        boolean hasNext = intent.getBooleanExtra("hasNext", false);
+        boolean hasPrev = intent.getBooleanExtra("hasPrev", false);
 
         createNotificationChannel();
 
-
         MediaSessionCompat mediaSession = new MediaSessionCompat(this, MEDIA_SESSION_TAG);
-
 
         int iconPlayPause = R.drawable.baseline_play_arrow_black_48;
         String titlePlayPause = "pause";
-        if(isPlaying){
-            iconPlayPause=R.drawable.baseline_pause_black_48;
-            titlePlayPause="play";
+        if (isPlaying) {
+            iconPlayPause = R.drawable.baseline_pause_black_48;
+            titlePlayPause = "play";
         }
 
-        Intent toggleIntent = new Intent(this, NotificationReturnSlot.class)
-                .setAction("toggle")
-                .putExtra("title",  title)
-                .putExtra("author",  author)
-                .putExtra("play", !isPlaying)
+        Intent toggleIntent = new Intent(this, NotificationReturnSlot.class).setAction("toggle")
+                .putExtra("title", title).putExtra("author", author).putExtra("play", !isPlaying)
                 .putExtra("imageUrl", imageUrl);
-        PendingIntent pendingToggleIntent = PendingIntent.getBroadcast(this, 0, toggleIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingToggleIntent = PendingIntent.getBroadcast(this, 0, toggleIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
         MediaButtonReceiver.handleIntent(mediaSession, toggleIntent);
 
-        //TODO(ALI): add media mediaSession Buttons and handle them
-        Intent nextIntent = new Intent(this, NotificationReturnSlot.class)
-                .setAction("next");
-        PendingIntent pendingNextIntent = PendingIntent.getBroadcast(this, 0, nextIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-//        MediaButtonReceiver.handleIntent(mediaSession, nextIntent);
+        // TODO(ALI): add media mediaSession Buttons and handle them
+        Intent nextIntent = new Intent(this, NotificationReturnSlot.class).setAction("next");
+        PendingIntent pendingNextIntent = PendingIntent.getBroadcast(this, 0, nextIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+        // MediaButtonReceiver.handleIntent(mediaSession, nextIntent);
 
-        Intent prevIntent = new Intent(this, NotificationReturnSlot.class)
-                .setAction("prev");
-        PendingIntent pendingPrevIntent = PendingIntent.getBroadcast(this, 0, prevIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-//        MediaButtonReceiver.handleIntent(mediaSession, prevIntent);
+        Intent prevIntent = new Intent(this, NotificationReturnSlot.class).setAction("prev");
+        PendingIntent pendingPrevIntent = PendingIntent.getBroadcast(this, 0, prevIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+        // MediaButtonReceiver.handleIntent(mediaSession, prevIntent);
 
-        Intent selectIntent = new Intent(this, NotificationReturnSlot.class)
-                .setAction("select");
-        PendingIntent selectPendingIntent = PendingIntent.getBroadcast(this, 0, selectIntent, PendingIntent.FLAG_CANCEL_CURRENT);
-//        MediaButtonReceiver.handleIntent(mediaSession, selectIntent);
-        
-            //File imgFile = new  File("/storage/emulated/0/Android/data/hu.encosoft.radio/files/" + imageUrl);
-            //Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
-            Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
-                .addAction(R.drawable.baseline_skip_previous_black_48, "prev", pendingPrevIntent)
+        Intent selectIntent = new Intent(this, NotificationReturnSlot.class).setAction("select");
+        PendingIntent selectPendingIntent = PendingIntent.getBroadcast(this, 0, selectIntent,
+                PendingIntent.FLAG_CANCEL_CURRENT);
+        // MediaButtonReceiver.handleIntent(mediaSession, selectIntent);
+
+        // File imgFile = new
+        // File("/storage/emulated/0/Android/data/hu.encosoft.radio/files/" + imageUrl);
+        // Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+        Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
+                // .addAction(R.drawable.baseline_skip_previous_black_48, "prev",
+                // pendingPrevIntent)
                 .addAction(iconPlayPause, titlePlayPause, pendingToggleIntent)
-                .addAction(R.drawable.baseline_skip_next_black_48, "next", pendingNextIntent)
-                .setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
-                        .setShowActionsInCompactView(0, 1,2)
-                        .setShowCancelButton(true)
-                        .setMediaSession(mediaSession.getSessionToken()))
+                // .addAction(R.drawable.baseline_skip_next_black_48, "next", pendingNextIntent)
+                .setStyle(new androidx.media.app.NotificationCompat.MediaStyle().setShowActionsInCompactView(0, 1, 2)
+                        .setShowCancelButton(true).setMediaSession(mediaSession.getSessionToken()))
                 .setSmallIcon(R.drawable.manna_icon_small)
-                //.setSmallIcon(imgFile)
-                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                .setVibrate(new long[]{0L})
-                .setPriority(NotificationCompat.PRIORITY_MIN)
-                .setContentTitle(title)
-                .setContentText(author)
-                .setSubText(title)
-                .setContentIntent(selectPendingIntent)
-                //.setLargeIcon(myBitmap)
+                // .setSmallIcon(imgFile)
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC).setVibrate(new long[] { 0L })
+                .setPriority(NotificationCompat.PRIORITY_MIN).setContentTitle(title).setContentText(author)
+                .setSubText(title).setContentIntent(selectPendingIntent)
+                // .setLargeIcon(myBitmap)
                 .setLargeIcon(BitmapFactory.decodeResource(this.getResources(), R.drawable.manna_icon_small))
-                //.setLargeIcon(BitmapFactory.decodeResource(this.getResources(), fd))
-                .setColor(Color.parseColor("#1D1E42"))
-                .build();
+                // .setLargeIcon(BitmapFactory.decodeResource(this.getResources(), fd))
+                .setColor(Color.parseColor("#1D1E42"));
+        // .build();
 
-            startForeground(NOTIFICATION_ID, notification);
-            if(!isPlaying) {
-                stopForeground(false);
-            }
-            return START_NOT_STICKY;
+        if (hasNext) {
+            notification.addAction(R.drawable.baseline_skip_next_black_48, "next", pendingNextIntent);
+        }
+        if (hasPrev) {
+            notification.addAction(R.drawable.baseline_skip_previous_black_48, "prev", pendingPrevIntent);
+        }
+
+        notification.build();
+
+        startForeground(NOTIFICATION_ID, notification);
+        if (!isPlaying) {
+            stopForeground(false);
+        }
+        return START_NOT_STICKY;
     }
 
     public static Bitmap getBitmapFromUrl(String src) {
@@ -141,11 +141,8 @@ public class NotificationPanel extends Service {
 
     private void createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel serviceChannel = new NotificationChannel(
-                    CHANNEL_ID,
-                    "Foreground Service Channel",
-                    NotificationManager.IMPORTANCE_LOW
-            );
+            NotificationChannel serviceChannel = new NotificationChannel(CHANNEL_ID, "Foreground Service Channel",
+                    NotificationManager.IMPORTANCE_LOW);
             serviceChannel.setDescription("flutter_media_notification");
             serviceChannel.setShowBadge(false);
             serviceChannel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
@@ -163,4 +160,3 @@ public class NotificationPanel extends Service {
         stopForeground(true);
     }
 }
-

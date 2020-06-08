@@ -34,7 +34,9 @@ public class FlutterMediaNotificationPlugin implements MethodCallHandler {
         final String author = call.argument("author");
         final boolean isPlaying = call.argument("isPlaying");
         final String imageUrl = call.argument("imageUrl");
-        showNotification(title, author, isPlaying, imageUrl);
+        final boolean hasNext = call.argument("hasNext");
+        final boolean hasPrev = call.argument("hasPrev");
+        showNotification(title, author, isPlaying, imageUrl, hasNext, hasPrev);
         result.success(null);
         break;
       case "hideNotification":
@@ -62,13 +64,15 @@ public class FlutterMediaNotificationPlugin implements MethodCallHandler {
     });
   }
 
-  static void showNotification(String title, String author, boolean play, String imageUrl) {
+  static void showNotification(String title, String author, boolean play, String imageUrl, boolean hasNext, boolean hasPrev) {
 
     Intent serviceIntent = new Intent(registrar.context(), NotificationPanel.class);
     serviceIntent.putExtra("title", title);
     serviceIntent.putExtra("author", author);
     serviceIntent.putExtra("isPlaying", play);
     serviceIntent.putExtra("imageUrl", imageUrl);
+    serviceIntent.putExtra("hasNext", hasNext);
+    serviceIntent.putExtra("hasPrev", hasPrev);
 
     registrar.context().startService(serviceIntent);
   }

@@ -19,15 +19,17 @@ public class NotificationReturnSlot extends BroadcastReceiver {
             case "toggle":
                 String title = intent.getStringExtra("title");
                 String author = intent.getStringExtra("author");
-                boolean play = intent.getBooleanExtra("play",true);
+                boolean play = intent.getBooleanExtra("play", true);
                 String imageUrl = intent.getStringExtra("imageUrl");
+                boolean hasNext = intent.getBooleanExtra("hasNext", false);
+                boolean hasPrev = intent.getBooleanExtra("hasPrev", false);
 
-                if(play)
+                if (play)
                     FlutterMediaNotificationPlugin.callEvent("play");
                 else
                     FlutterMediaNotificationPlugin.callEvent("pause");
 
-                FlutterMediaNotificationPlugin.showNotification(title, author,play, imageUrl);
+                FlutterMediaNotificationPlugin.showNotification(title, author, play, imageUrl, hasNext, hasPrev);
                 break;
             case "select":
                 Intent closeDialog = new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
@@ -41,4 +43,3 @@ public class NotificationReturnSlot extends BroadcastReceiver {
         }
     }
 }
-

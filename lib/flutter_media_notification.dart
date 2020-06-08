@@ -27,13 +27,20 @@ class MediaNotification {
   /// [author] of music. If music is pausing you have to set
   /// [isPlaying] false.
   static Future showNotification(
-      {title = '', author = '', isPlaying = true, imageUrl = ''}) async {
+      {title = '',
+      author = '',
+      isPlaying = true,
+      imageUrl = '',
+      hasNext = false,
+      hasPrev = false}) async {
     try {
       final Map<String, dynamic> params = <String, dynamic>{
         'title': title,
         'author': author,
         'isPlaying': isPlaying,
-        'imageUrl': imageUrl
+        'imageUrl': imageUrl,
+        'hasNext': hasNext,
+        'hasPrev': hasPrev
       };
       await _channel.invokeMethod('showNotification', params);
       _channel.setMethodCallHandler(_utilsHandler);
