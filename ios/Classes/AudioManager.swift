@@ -33,14 +33,14 @@ open class AudioManager: NSObject {
                 self.onEvents?("play")
                 return .success
             }
-            command.togglePlayPauseCommand.addTarget{ (event) -> MPRemoteCommandHandlerStatus in
+            /*command.togglePlayPauseCommand.addTarget{ (event) -> MPRemoteCommandHandlerStatus in
                 if self.player?.rate != 0 && self.player?.error == nil {
                     self.onEvents?("pause")
 	            } else {
                     self.onEvents?("play")
 	            }
                 return .success
-            }
+            }*/
             command.nextTrackCommand.addTarget{ (event) -> MPRemoteCommandHandlerStatus in
                 self.onEvents?("next")
                 return .success
