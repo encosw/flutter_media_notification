@@ -32,7 +32,9 @@ class MediaNotification {
       isPlaying = true,
       imageUrl = '',
       hasNext = false,
-      hasPrev = false}) async {
+      hasPrev = false,
+      int duration = 0,
+      int currentPosition = 0}) async {
     try {
       final Map<String, dynamic> params = <String, dynamic>{
         'title': title,
@@ -40,7 +42,9 @@ class MediaNotification {
         'isPlaying': isPlaying,
         'imageUrl': imageUrl,
         'hasNext': hasNext,
-        'hasPrev': hasPrev
+        'hasPrev': hasPrev,
+        'duration': duration,
+        'currentPosition': currentPosition
       };
       await _channel.invokeMethod('showNotification', params);
       _channel.setMethodCallHandler(_utilsHandler);

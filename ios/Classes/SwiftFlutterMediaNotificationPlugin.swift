@@ -1,14 +1,72 @@
 import Flutter
 import UIKit
+import MediaPlayer
 
-public class SwiftFlutterMediaNotificationPlugin: NSObject, FlutterPlugin {
-  public static func register(with registrar: FlutterPluginRegistrar) {
-    let channel = FlutterMethodChannel(name: "flutter_media_notification", binaryMessenger: registrar.messenger())
-    let instance = SwiftFlutterMediaNotificationPlugin()
-    registrar.addMethodCallDelegate(instance, channel: channel)
-  }
+public class SwiftAudioManagerPlugin: NSObject, FlutterPlugin {
+    var audioManager = AudioManager()
 
-  public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-    result("iOS " + UIDevice.current.systemVersion)
-  }
+    var player: AVPlayer?
+    open var hasNext: Bool = false
+    open var hasPrev: Bool = false
+    open var onEvents: ((String)->Void)?
+
+    fileprivate var registrar: FlutterPluginRegistrar!
+    fileprivate static let instance: SwiftAudioManagerPlugin = {
+        return SwiftAudioManagerPlugin()
+    }()
+    public static func register(with registrar: FlutterPluginRegistrar) {
+        let channel = FlutterMethodChannel(name: "flutter_media_notification", binaryMessenger: registrar.messenger())
+        registrar.addMethodCallDelegate(instance, channel: channel)
+        registrar.addApplicationDelegate(instance)
+        
+        AudioManager.default.onEvents = { event in
+            switch event {
+            case "play":
+                channel.invokeMethod("play", arguments: nil)
+            case "pause":
+                channel.invokeMethod("pause", arguments: nil)
+            case "next":
+                channel.invokeMethod("next", arguments: nil)
+            case "prev":
+                channel.invokeMethod("prev", arguments: nil)
+            default:
+                break
+            }
+        }
+    }
+    
+    public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        let arguments = call.arguments as? Dictionary<String,Any> ?? [:]
+        switch call.method {
+            case "showNotification":
+                AudioManager.default.hasNext = arguments["hasNext"] as? Bool ?? false
+                AudioManager.default.hasPrev = arguments["hasPrev"] as? Bool ?? false
+                let title = arguments["title"] as? String ?? ""
+                let artist = arguments["author"] as? String ?? ""
+                let duration = arguments["duration"] as? Int ?? 0
+                let currentPosition = arguments["currentPosition"] as? Int ?? 0
+                AudioManager.default.setupRemoteCommandHandler(enabled: true)
+                AudioManager.default.setRemoteInfo(title: title, artist: artist, duration: duration, currentPosition: currentPosition)
+            case "hideNotification":
+                AudioManager.default.setupRemoteCommandHandler(enabled: false)
+            /*case "updateInfo":
+                let title = arguments["title"] as? String ?? ""
+                let artist = arguments["artist"] as? String ?? ""
+                let duration = arguments["duration"] as? Int ?? 0
+                let currentPosition = arguments["currentPosition"] as? Int ?? 0
+                AudioManager.default.setRemoteInfo(title: title, artist: artist, duration: duration, currentPosition: currentPosition)*/
+            default:
+                break
+        }
+    }
+    
+    func getLocal(_ registrar: FlutterPluginRegistrar, path: String) -> String? {
+        let key = registrar.lookupKey(forAsset: path)
+        return Bundle.main.path(forResource: key, ofType: nil)
+    }
+    
+    public func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [AnyHashable : Any] = [:]) -> Bool {
+        //AudioManager.default.registerBackground()
+        return true
+    }
 }
