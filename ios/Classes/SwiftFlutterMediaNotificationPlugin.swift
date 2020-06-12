@@ -2,7 +2,7 @@ import Flutter
 import UIKit
 import MediaPlayer
 
-public class FlutterMediaNotificationPlugin: NSObject, FlutterPlugin {
+public class SwiftFlutterMediaNotificationPlugin: NSObject, FlutterPlugin {
     var audioManager = AudioManager()
 
     var player: AVPlayer?
@@ -11,8 +11,8 @@ public class FlutterMediaNotificationPlugin: NSObject, FlutterPlugin {
     open var onEvents: ((String)->Void)?
 
     fileprivate var registrar: FlutterPluginRegistrar!
-    fileprivate static let instance: FlutterMediaNotificationPlugin = {
-        return FlutterMediaNotificationPlugin()
+    fileprivate static let instance: SwiftFlutterMediaNotificationPlugin = {
+        return SwiftFlutterMediaNotificationPlugin()
     }()
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(name: "flutter_media_notification", binaryMessenger: registrar.messenger())
